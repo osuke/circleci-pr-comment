@@ -1,8 +1,5 @@
 version: 2.1
 
-orbs:
-  ghpr: narrativescience/ghpr@1.0.3
-
 executors:
   default:
     working_directory: ~/workspace
@@ -28,24 +25,32 @@ jobs:
     executor: default
     steps:
       - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
+        #- restore_cache:
+        #    key: dependency-cache-{{ checksum "package-lock.json" }}
+        #- run:
+        #    name: unit test
+        #    command: npx jest --ci --runInBand --reporters=default --reporters=jest-junit --coverage
+        #    environment:
+        #      JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
       - run:
-          name: unit test
-          command: npx jest --ci --runInBand --reporters=default --reporters=jest-junit --coverage
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
-      - ghpr/post-pr-comment:
-          comment: Hello
-      - store_test_results:
-          path: ./reports/junit/
-      - store_artifacts:
-          path: ./coverage
+          name: Post comment
+          command: |
+            comment="Hello!"
+            curl -X POST \
+              -H "Content-type: application/json" \
+              -H "Authorization: token ${GITHUB_TOKEN}" \
+              -d "{ \"body\": \"${comment}\" }" \
+              "https://api.github.com/repos/osuke/circleci-pr-comment/issues/${PULL_REQUEST_ID}/comments"
+              #- store_test_results:
+              #    path: ./reports/junit/
+              #- store_artifacts:
+              #    path: ./coverage
 
 workflows:
   demo:
     jobs:
       - setup
       - unit_test:
+          context: hoge
           requires:
             - setup
