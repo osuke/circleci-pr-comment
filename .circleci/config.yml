@@ -35,7 +35,7 @@ jobs:
           command: npx jest --ci --runInBand --reporters=default --reporters=jest-junit --coverage
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
-    ` - ghpr/post-pr-comment
+      - ghpr/post-pr-comment:
           comment: Hello
       - store_test_results:
           path: ./reports/junit/
